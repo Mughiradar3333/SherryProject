@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="3"
+    tools:context=".SendSmsActivity">
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/Lin_number"
+        android:layout_height="0dp">
+
+
+        <ImageView
+            android:id="@+id/im1"
+            android:layout_width="100sp"
+            android:layout_height="100sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40sp"
+            android:src="@drawable/readsms"
+            />
+
+        <EditText
+            android:layout_below="@id/im1"
+            android:id="@+id/edt_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:hint="Long Click To enter Number"
+            android:layout_gravity="center_vertical"
+            />
+
+
+    </RelativeLayout>
+<ImageView
+    android:layout_width="match_parent"
+    android:layout_height="1sp"
+    android:src="@drawable/horizontal_border"
+    />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/Lin_msg"
+        android:layout_height="0dp">
+
+        <ImageView
+            android:layout_width="100sp"
+            android:layout_height="100sp"
+            android:src="@drawable/readsms"
+            android:id="@+id/im3"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            />
+
+        <EditText
+            android:layout_below="@id/im3"
+            android:id="@+id/edt_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:hint="Long Click To enter Msg"
+            android:layout_gravity="center_vertical"
+            />
+
+
+
+    </RelativeLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1sp"
+        android:src="@drawable/horizontal_border"
+        />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/Lin_send"
+        android:layout_height="0dp">
+
+        <ImageView
+            android:id="@+id/im2"
+            android:layout_width="100sp"
+            android:layout_height="100sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40sp"
+            android:src="@drawable/sav"
+            />
+
+
+        <TextView
+            android:textAlignment="center"
+            android:id="@+id/edt_Send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/im2"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:hint="Long Click To Send Message"
+            />
+
+    </RelativeLayout>
+
+
+</LinearLayout>
