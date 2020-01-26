@@ -22,10 +22,8 @@
         android:roundIcon="@drawable/eye2"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CameraActivity">
-
-
-        </activity>
+        <activity android:name=".InboxActivity22"></activity>
+        <activity android:name=".CameraActivity"></activity>
         <activity
             android:name=".ReadNotesActivity"
             android:screenOrientation="portrait" />
@@ -34,9 +32,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".SendSmsActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".InboxActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".MessagesActivity"
@@ -58,9 +53,7 @@
             android:screenOrientation="portrait">
             <meta-data
                 android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-                android:value="label"
-                />
-
+                android:value="label" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

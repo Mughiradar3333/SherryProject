@@ -51,7 +51,7 @@ public class MessagesActivity extends AppCompatActivity implements TextToSpeech.
         l2.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startActivity(new Intent(MessagesActivity.this,InboxActivity.class));
+                startActivity(new Intent(MessagesActivity.this,InboxActivity22.class));
                 return true;
             }
         });
@@ -65,11 +65,10 @@ public class MessagesActivity extends AppCompatActivity implements TextToSpeech.
         l222.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startActivity(new Intent(MessagesActivity.this,InboxActivity.class));
+                startActivity(new Intent(MessagesActivity.this,InboxActivity22.class));
                 return true;
             }
         });
-
 
         l1.setOnClickListener(new View.OnClickListener() {
             @Override
