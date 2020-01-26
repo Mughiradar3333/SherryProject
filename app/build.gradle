@@ -32,4 +32,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-appindexing:12.0.1'
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
     implementation 'com.intuit.ssp:ssp-android:1.0.6'
+    implementation 'com.google.firebase:firebase-core:16.0.3'
+    implementation 'com.google.firebase:firebase-ml-vision:17.0.0'
+    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:15.0.0'
+    implementation 'com.wonderkiln:camerakit:0.13.1'
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
+
 }
+
+apply plugin : 'com.google.gms.google-services'

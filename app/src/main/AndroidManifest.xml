@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
@@ -22,30 +22,49 @@
         android:roundIcon="@drawable/eye2"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CameraActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".ReadNotesActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".AddNotesActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".SendSmsActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".InboxActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".MessagesActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".NotesActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".BatteryActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".CallActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".HomeActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".MainActivity"
+        <activity android:name=".CameraActivity">
+
+
+        </activity>
+        <activity
+            android:name=".ReadNotesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AddNotesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SendSmsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".InboxActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MessagesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".NotesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".BatteryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CallActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MainActivity"
             android:screenOrientation="portrait">
+            <meta-data
+                android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+                android:value="label"
+                />
+
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -1,229 +1,191 @@
 package com.example.sherryproject;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.app.VoiceInteractor;
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.hardware.camera2.CameraManager;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
-import org.opencv.core.DMatch;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfDMatch;
-import org.opencv.core.MatOfKeyPoint;
-import org.opencv.core.Scalar;
-import org.opencv.features2d.DescriptorExtractor;
-import org.opencv.features2d.DescriptorMatcher;
-import org.opencv.features2d.FeatureDetector;
-import org.opencv.features2d.Features2d;
-import org.opencv.imgproc.Imgproc;
+import com.example.sherryproject.Helper.InternetCheck;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.cloud.FirebaseVisionCloudDetectorOptions;
+import com.google.firebase.ml.vision.cloud.label.FirebaseVisionCloudLabel;
+import com.google.firebase.ml.vision.cloud.label.FirebaseVisionCloudLabelDetector;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.wonderkiln.camerakit.CameraKitError;
+import com.wonderkiln.camerakit.CameraKitEvent;
+import com.wonderkiln.camerakit.CameraKitEventListener;
+import com.wonderkiln.camerakit.CameraKitImage;
+import com.wonderkiln.camerakit.CameraKitVideo;
+import com.wonderkiln.camerakit.CameraView;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class CameraActivity extends AppCompatActivity  implements CameraBridgeViewBase.CvCameraViewListener2 {
-    private static final String TAG = "OCVSample::Activity";
-    private static final int REQUEST_PERMISSION = 100;
-    private int w, h;
-    private CameraBridgeViewBase mOpenCvCameraView;
-    TextView tvName;
-    Scalar RED = new Scalar(255, 0, 0);
-    Scalar GREEN = new Scalar(0, 255, 0);
-    FeatureDetector detector;
-    DescriptorExtractor descriptor;
-    DescriptorMatcher matcher;
-    Mat descriptors2,descriptors1;
-    Mat img1;
-    MatOfKeyPoint keypoints1,keypoints2;
+import dmax.dialog.SpotsDialog;
 
-    static {
-        if (!OpenCVLoader.initDebug())
-            Log.d("ERROR", "Unable to load OpenCV");
-        else
-            Log.d("SUCCESS", "OpenCV loaded");
-    }
+public class CameraActivity extends AppCompatActivity  implements TextToSpeech.OnInitListener{
 
-    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS: {
-                    Log.i(TAG, "OpenCV loaded successfully");
-                    mOpenCvCameraView.enableView();
-                    try {
-                        initializeOpenCVDependencies();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-                default: {
-                    super.onManagerConnected(status);
-                }
-                break;
-            }
-        }
-    };
-
-    private void initializeOpenCVDependencies() throws IOException {
-        mOpenCvCameraView.enableView();
-        detector = FeatureDetector.create(FeatureDetector.ORB);
-        descriptor = DescriptorExtractor.create(DescriptorExtractor.ORB);
-        matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
-        img1 = new Mat();
-        AssetManager assetManager = getAssets();
-        InputStream istr = assetManager.open("a.jpeg");
-        Bitmap bitmap = BitmapFactory.decodeStream(istr);
-        Utils.bitmapToMat(bitmap, img1);
-        Imgproc.cvtColor(img1, img1, Imgproc.COLOR_RGB2GRAY);
-        img1.convertTo(img1, 0); //converting the image to match with the type of the cameras image
-        descriptors1 = new Mat();
-        keypoints1 = new MatOfKeyPoint();
-        detector.detect(img1, keypoints1);
-        descriptor.compute(img1, keypoints1, descriptors1);
-
-    }
+    CameraView cameraView;
+    Button btnDetect;
+    AlertDialog waitingDialog;
+    TextToSpeech textToSpeech;
 
 
-    public CameraActivity() {
-
-        Log.i(TAG, "Instantiated new " + this.getClass());
-    }
-
-    /**
-     * Called when the activity is first created.
-     */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onResume() {
+        super.onResume();
+        cameraView.start();
+    }
 
-        Log.i(TAG, "called onCreate");
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        cameraView.stop();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_camera);
 
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION);
-        }
+        textToSpeech = new TextToSpeech(this, this);
 
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.tutorial1_activity_java_surface_view);
-        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-        mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
-        tvName = (TextView) findViewById(R.id.text1);
+        cameraView=(CameraView)findViewById(R.id.camera_view);
+        btnDetect=(Button)findViewById(R.id.btn_detect);
+        waitingDialog = new SpotsDialog.Builder().setContext(this).setMessage("Please Waiting").setCancelable(false).build();
+
+        cameraView.addCameraKitListener(new CameraKitEventListener() {
+            @Override
+            public void onEvent(CameraKitEvent cameraKitEvent) {
+
+            }
+
+            @Override
+            public void onError(CameraKitError cameraKitError) {
+
+            }
+
+            @Override
+            public void onImage(CameraKitImage cameraKitImage) {
+
+                waitingDialog.show();
+                Bitmap bitmap = cameraKitImage.getBitmap();
+                bitmap = Bitmap.createScaledBitmap(bitmap,cameraView.getWidth(),cameraView.getHeight(),false);
+                cameraView.stop();
+
+                runDetector(bitmap);
+
+            }
+
+            @Override
+            public void onVideo(CameraKitVideo cameraKitVideo) {
+
+            }
+        });
+        btnDetect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cameraView.start();
+                cameraView.captureImage();
+            }
+        });
 
     }
+
+    private void runDetector(Bitmap bitmap) {
+
+        final FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+        new InternetCheck(new InternetCheck.Consumer() {
+            @Override
+            public void accept(Boolean internet) {
+
+                if (internet){
+                    waitingDialog.dismiss();
+                    FirebaseVisionCloudDetectorOptions options = new FirebaseVisionCloudDetectorOptions.Builder().setMaxResults(1).build();
+                    FirebaseVisionCloudLabelDetector detector = FirebaseVision.getInstance().getVisionCloudLabelDetector(options);
+
+                    detector.detectInImage(image).addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionCloudLabel>>() {
+                        @Override
+                        public void onSuccess(List<FirebaseVisionCloudLabel> firebaseVisionCloudLabels) {
+//                            processDataResult(firebaseVisionCloudLabels);
+                            waitingDialog.dismiss();
+                            for (FirebaseVisionCloudLabel label : firebaseVisionCloudLabels){
+                                Toast.makeText(CameraActivity.this, "Firebase Label "+label.getLabel(), Toast.LENGTH_SHORT).show();
+                            }
+                            }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(CameraActivity.this, "Image Cant Detect Successfully", Toast.LENGTH_SHORT).show();
+                            String text = "Image Detection Unsuccessful.";
+                            if ("".equals(text)) {
+                                text = "Please enter some text to speak.";
+                            }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+                            }
+                            else {
+                                textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                            }
+                            startActivity(new Intent(CameraActivity.this,HomeActivity.class));
+                        }
+                    });
+                }else {
+                    waitingDialog.dismiss();
+                    String text = "Please on your internet connection to detect image.";
+                    if ("".equals(text)) {
+                        text = "Please enter some text to speak.";
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+                    }
+                    else {
+                        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                    }
+                    startActivity(new Intent(CameraActivity.this,HomeActivity.class));
+                }
+
+            }
+        });
+
+    }
+
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if (mOpenCvCameraView != null)
-            mOpenCvCameraView.disableView();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            int result = textToSpeech.setLanguage(Locale.US);
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("error", "This Language is not supported");
+            } else {
+                texttoSpeak();
+            }
         } else {
-            Log.d(TAG, "OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+            Log.e("error", "Failed to Initialize");
         }
     }
 
-    public void onDestroy() {
-        super.onDestroy();
-        if (mOpenCvCameraView != null)
-            mOpenCvCameraView.disableView();
-    }
-
-    public void onCameraViewStarted(int width, int height) {
-        w = width;
-        h = height;
-    }
-
-    public void onCameraViewStopped() {
-    }
-
-    public Mat recognize(Mat aInputFrame) {
-
-        Imgproc.cvtColor(aInputFrame, aInputFrame, Imgproc.COLOR_RGB2GRAY);
-        descriptors2 = new Mat();
-        keypoints2 = new MatOfKeyPoint();
-        detector.detect(aInputFrame, keypoints2);
-        descriptor.compute(aInputFrame, keypoints2, descriptors2);
-
-        // Matching
-        MatOfDMatch matches = new MatOfDMatch();
-        if (img1.type() == aInputFrame.type()) {
-            matcher.match(descriptors1, descriptors2, matches);
-        } else {
-            return aInputFrame;
+    private void texttoSpeak() {
+        String text = "You are in the Image Detection activity. Press long click on Bottom to get battery information.";
+        if ("".equals(text)) {
+            text = "Please enter some text to speak.";
         }
-        List<DMatch> matchesList = matches.toList();
-
-        Double max_dist = 0.0;
-        Double min_dist = 100.0;
-
-        for (int i = 0; i < matchesList.size(); i++) {
-            Double dist = (double) matchesList.get(i).distance;
-            if (dist < min_dist)
-                min_dist = dist;
-            if (dist > max_dist)
-                max_dist = dist;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
         }
-
-        LinkedList<DMatch> good_matches = new LinkedList<DMatch>();
-        for (int i = 0; i < matchesList.size(); i++) {
-            if (matchesList.get(i).distance <= (1.5 * min_dist))
-                good_matches.addLast(matchesList.get(i));
+        else {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         }
-
-        MatOfDMatch goodMatches = new MatOfDMatch();
-        goodMatches.fromList(good_matches);
-        Mat outputImg = new Mat();
-        MatOfByte drawnMatches = new MatOfByte();
-        if (aInputFrame.empty() || aInputFrame.cols() < 1 || aInputFrame.rows() < 1) {
-            return aInputFrame;
-        }
-        Features2d.drawMatches(img1, keypoints1, aInputFrame, keypoints2, goodMatches, outputImg, GREEN, RED, drawnMatches, Features2d.NOT_DRAW_SINGLE_POINTS);
-        Imgproc.resize(outputImg, outputImg, aInputFrame.size());
-
-        return outputImg;
-    }
-
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        return recognize(inputFrame.rgba());
-
     }
 }
